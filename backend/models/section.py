@@ -5,8 +5,6 @@
 # Matt Hokinson, 12/26/22
 ##############################
 
-from uuid import uuid4
-
 import requests
 import xml.etree.ElementTree as ET
 
@@ -14,12 +12,11 @@ from os.path import exists
 
 import models.utils as utils
 from models.meeting import Meeting
+from utils.utils import log, LoggingMode
 
 class Section: 
     def __init__(self, sectionID, year, semester, subjectCode, courseNumber):
         # Args needed for making course explorer query (and checking cache) 
-        self.id = uuid4() # TODO: Keep?
-
         self.sectionNumber = sectionID # The uuid for the section (I think unique) 
 
         self.sectionCode = "" # The code for the section - AL1, ADX, etc.
@@ -53,6 +50,10 @@ class Section:
             meeting.parse_xml_object(m)
             self.meetings.append(meeting)
 
+        # if there are no meetings, report 
+        if len(self.meetings) == 0:
+            log(f"Warning: No meetings found for section {self.sectionNumber}", mode=LoggingMode.WARNING)
+
     def __read_local_file(self, year, semester, subjectCode, courseNumber):
         with open(utils.get_local_section_file_path(year, semester, subjectCode, courseNumber, self.sectionNumber), 'r') as f:
             # Read in file text as XML object 
@@ -61,10 +62,16 @@ class Section:
 
     def __fetch_remote_data(self, year, semester, subjectCode, courseNumber):
         # Fetch the XML file from the Course Explorer API
-        r = requests.get(utils.get_remote_endpoint(year, semester, subjectCode, courseNumber, sectionID=self.sectionNumber))
-        root = ET.fromstring(r.text)
+        remote_endpoint = utils.get_remote_endpoint(year, semester, subjectCode, courseNumber, sectionID=self.sectionNumber)
+        response = requests.get(remote_endpoint)
+        if response.status_code != 200:
+            log(f"Error fetching course info from {remote_endpoint}", mode=LoggingMode.ERROR)
+            log(f"Error message: {response.text}", mode=LoggingMode.ERROR)
+            return
+
+        root = ET.fromstring(response.text)
         self.__parse_xml_object(root)
 
         # Write the XML file to the local cache 
         with open(utils.get_local_section_file_path(year, semester, subjectCode, courseNumber, self.sectionNumber), 'w') as f:
-            f.write(r.text)
+            f.write(response.text)

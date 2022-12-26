@@ -6,7 +6,6 @@
 ##############################
 
 from ariadne import QueryType
-from uuid import uuid4
 
 import requests
 import xml.etree.ElementTree as ET
@@ -15,6 +14,7 @@ from os.path import exists
 
 import models.utils as utils
 from models.section import Section
+from utils.utils import log, LoggingMode
 
 courseQuery = QueryType()
 
@@ -22,7 +22,6 @@ courseQuery = QueryType()
 class Course: 
     def __init__(self, year, semester, subjectCode, courseNumber):
         # Fields needed for making course explorer query (and checking cache) 
-        self.id = uuid4() # TODO: Keep?
         self.year = year
         self.semester = semester
         self.subjectCode = subjectCode # Subject code (ex. CS, MATH)
@@ -54,6 +53,9 @@ class Course:
         for s in root.findall('sections/section'):
             self.sections.append(Section(s.attrib['id'], self.year, self.semester, self.subjectCode, self.courseNumber))
 
+        if len(self.sections) == 0:
+            log(f"No sections found for {self.subjectCode} {self.courseNumber} in {self.semester} {self.year}", mode=LoggingMode.WARNING)
+
     def __read_local_file(self):
         with open(utils.get_local_course_file_path(self.year, self.semester, self.subjectCode, self.courseNumber), 'r') as f:
             # Read in file text as XML object 
@@ -65,8 +67,11 @@ class Course:
         # Fetch data from course explorer API 
         remote_endpoint = utils.get_remote_endpoint(self.year, self.semester, self.subjectCode, self.courseNumber)
         courseInfoResponse = requests.get(remote_endpoint) # no extra auth required 
-        print(f"Response: {courseInfoResponse}")
-        # TODO: Add error handling
+        
+        if courseInfoResponse.status_code != 200:
+            log(f"Error fetching course info from {remote_endpoint}", mode=LoggingMode.ERROR)
+            log(f"Error message: {courseInfoResponse.text}", mode=LoggingMode.ERROR)
+            return
 
         # Parse the XML file to build out the rest of the object 
         root = ET.fromstring(courseInfoResponse.text)
@@ -78,6 +83,8 @@ class Course:
 
 @courseQuery.field("courseInfo")
 def resolve_course_info(_, info, year, semester, subjectCode, courseNumber):
+    log(f"Resolving courseInfo query for {subjectCode} {courseNumber} in {semester} {year}", mode=LoggingMode.INFO)
+
     # Cache flush - TODO: Better cache flushing policy 
     utils.check_cache_and_flush()
     

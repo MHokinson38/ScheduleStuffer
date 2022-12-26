@@ -6,3 +6,6 @@ schedule-stuffer-env/
 
 # Ignore the contents of the cache 
 backend/cachedCourseInfo/
+
+# Log files 
+*.log

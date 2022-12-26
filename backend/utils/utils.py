@@ -5,6 +5,7 @@
 ##############################
 
 import enum
+import datetime
 
 # Create enum for different logging modes 
 class LoggingMode(enum.Enum):
@@ -19,6 +20,9 @@ INFO_LOG_ON = True
 WARNING_LOG_ON = True 
 ERROR_LOG_ON = True 
 
+# Logging file 
+LOGGING_FILE = "logs/server_log.log"
+
 def log(message, mode=LoggingMode.DEBUG):
     """Log a message to the console, with a mode to determine what to log
 
@@ -26,11 +30,18 @@ def log(message, mode=LoggingMode.DEBUG):
         message (string): Message to log
         mode (LoggingMode, optional): Logging mode. Defaults to LoggingMode.DEBUG.
     """
+    log_message = ""
+    timestamp = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
     if mode == LoggingMode.DEBUG and DEBUG_LOG_ON:
-        print("[DEBUG] " + message)
+        log_message = f"[{timestamp}][DEBUG] " + message
     elif mode == LoggingMode.INFO and INFO_LOG_ON:
-        print("[INFO] " + message)
+        log_message = f"[{timestamp}][INFO] " + message
     elif mode == LoggingMode.WARNING and WARNING_LOG_ON:
-        print("[WARNING] " + message)
+        log_message = f"[{timestamp}][WARNING] " + message
     elif mode == LoggingMode.ERROR and ERROR_LOG_ON:
-        print("[ERROR] " + message)
+        log_message = f"[{timestamp}][ERROR] " + message
+
+    # print the log message nad append to log file 
+    print(log_message)
+    with open(LOGGING_FILE, 'a') as f:
+        f.write(log_message + "\n")

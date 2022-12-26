@@ -21,12 +21,15 @@ def index():
 @app.route('/graphql', methods=['GET'])
 def graphql_playground():
     """Serve GraphiQL playground"""
+    log(f"Launching playground", mode=LoggingMode.INFO)
+
     return PLAYGROUND_HTML, 200
 
 # GraphQL endpoint
 @app.route('/graphql', methods=['POST'])
 def graphql_server():
     """GraphQL Request Endpoint"""
+    log(f"Receiving request at /graphql", mode=LoggingMode.INFO)
 
     data = request.get_json()
     success, result = graphql_sync(
