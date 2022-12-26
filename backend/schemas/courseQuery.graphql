@@ -1,0 +1,23 @@
+query CourseInfo($year: String! 
+                 $semester: String! 
+                 $subjectCode: String!
+                 $courseNumber: String!) 
+{
+    courseInfo(year: $year, 
+               semester: $semester, 
+               subjectCode: $subjectCode, 
+               courseNumber: $courseNumber) { 
+        label 
+        sections {
+            sectionNumber
+            enrollmentStatus
+            meetings {
+                start
+                end
+                daysOfWeek
+                roomNumber
+                buildingName
+            }            
+        }
+    }
+}

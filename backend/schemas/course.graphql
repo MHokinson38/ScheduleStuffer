@@ -1,0 +1,32 @@
+type Meeting {
+    start: String! # ex: 2019-01-01T08:00:00
+    end: String! # ex: 2019-01-01T08:00:00
+    daysOfWeek: String! # ex: MWF, R is Thursday 
+    roomNumber: String 
+    buildingName: String
+}
+
+type Section {
+    sectionNumber: String! 
+    sectionCode: String!
+    statusCode: String # open, closed, cancelled
+    partOfTerm: String
+    sectionStatusCode: String
+    enrollmentStatus: String 
+    meetings: [Meeting!]! # issue if no meetings 
+}
+
+type Course {
+    id: ID!
+    subjectCode: String! # ex: CS, MATH 
+    courseNumber: String! # ex: 111, 101
+    label: String! # ex: Introduction to Computer Science
+    description: String
+    creditHours: Int
+    sections: [Section!]! # If there are no sections/meetings, problem 
+}
+
+type Query {
+    # Code is the course code, number only 
+    courseInfo(year: String!, semester: String!, subjectCode: String!, courseNumber: String!): Course
+}
