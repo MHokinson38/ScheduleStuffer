@@ -8,6 +8,8 @@
 import os 
 import shutil 
 
+from utils.utils import log, LoggingMode
+
 # Constants 
 CACHE_DIR = "cachedCourseInfo/"
 COURSE_EXPLORER_ENDPOINT = "http://courses.illinois.edu/cisapp/explorer/schedule/"
@@ -39,6 +41,8 @@ def check_cache_and_flush():
     """
     MAX_SIZE = 10000000 # 10 MB
     if os.path.getsize(CACHE_DIR) > MAX_SIZE:
+        log(f"Cache size is above threshold ({os.path.getsize(CACHE_DIR)}), flushing cache", mode=LoggingMode.INFO)
+
         shutil.rmtree(CACHE_DIR)
         os.mkdir(CACHE_DIR)
     

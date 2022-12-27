@@ -21,7 +21,7 @@ WARNING_LOG_ON = True
 ERROR_LOG_ON = True 
 
 # Logging file 
-LOGGING_FILE = "logs/server_log.log"
+LOGGING_FILE = "utils/logs/server_log.log"
 
 def log(message, mode=LoggingMode.DEBUG):
     """Log a message to the console, with a mode to determine what to log
@@ -31,7 +31,7 @@ def log(message, mode=LoggingMode.DEBUG):
         mode (LoggingMode, optional): Logging mode. Defaults to LoggingMode.DEBUG.
     """
     log_message = ""
-    timestamp = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+    timestamp = datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")
     if mode == LoggingMode.DEBUG and DEBUG_LOG_ON:
         log_message = f"[{timestamp}][DEBUG] " + message
     elif mode == LoggingMode.INFO and INFO_LOG_ON:
