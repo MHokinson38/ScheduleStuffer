@@ -128,6 +128,8 @@ function submitSearchGQLRequest(input, resHandler) {
     }
 
     // Construct the GQL query
+    // TODO: Write this query string in client side, or set up some sync script for 
+    // both the client/server code. Although I don't think it's really used on the server side
     let query = `query CourseInfo($year: String! 
                                 $semester: String! 
                                 $subjectCode: String!

@@ -9,7 +9,7 @@ from ariadne import QueryType
 
 import requests
 import xml.etree.ElementTree as ET
-
+import time 
 from os.path import exists
 
 import models.utils as utils
@@ -100,6 +100,8 @@ class Course:
 # TODO: Add way to handle tracking non-existent courses faster, or query at subject level first and then filter for proper level
 def resolve_course_info(_, info, year, semester, subjectCode, courseNumber):
     log(f"Resolving courseInfo query for {subjectCode} {courseNumber} in {semester} {year}", mode=LoggingMode.INFO)
+    # For metrics, measure time to process query 
+    currTime = time.time()
 
     # Cache flush - TODO: Better cache flushing policy 
     utils.check_cache_and_flush()
@@ -115,5 +117,8 @@ def resolve_course_info(_, info, year, semester, subjectCode, courseNumber):
         course = Course(year, semester, subjectCode, str(c))
         if course.exists:
             courses.append(course)
+
+    endTime = time.time()
+    log(f"Query processed in {endTime - currTime} seconds", mode=LoggingMode.INFO)
     
     return courses
