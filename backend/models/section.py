@@ -37,12 +37,21 @@ class Section:
     # Either checking local cache or fetching from Course Explorer API
     #########################
     def __parse_xml_object(self, root):
-        # Should only be on element in the file for each item, save meetings 
-        self.sectionCode = root.findall('sectionNumber')[0].text  
-        self.statusCode = root.findall('statusCode')[0].text
-        self.partOfTerm = root.findall('partOfTerm')[0].text
-        self.sectionStatusCode = root.findall('sectionStatusCode')[0].text
-        self.enrollmentStatus = root.findall('enrollmentStatus')[0].text
+        def __try_get(field):
+            try:
+                return root.findall(field)[0].text
+            except IndexError:
+                return ""
+            except:
+                log(f"Exception raised in parsing field {field} of meeting", mode=LoggingMode.ERROR)
+
+        log(f"Parsing section {self.sectionNumber}", mode=LoggingMode.DEBUG)
+        # Should only be on element in the file for each item, save meetings
+        self.sectionCode = __try_get("sectionNumber")
+        self.statusCode = __try_get("statusCode")
+        self.partOfTerm = __try_get("partOfTerm")
+        self.sectionStatusCode = __try_get("sectionStatusCode")
+        self.enrollmentStatus = __try_get("enrollmentStatus")
 
         # Fetch the section IDs, then fetch and parse section endpoints 
         for m in root.findall('meetings/meeting'):

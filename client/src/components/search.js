@@ -143,6 +143,7 @@ function submitSearchGQLRequest(input, resHandler) {
                 sectionNumber
                 enrollmentStatus
                 meetings {
+                    isOnline
                     start
                     end
                     daysOfWeek

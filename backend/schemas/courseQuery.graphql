@@ -12,6 +12,7 @@ query CourseInfo($year: String!
             sectionNumber
             enrollmentStatus
             meetings {
+                isOnline
                 start
                 end
                 daysOfWeek

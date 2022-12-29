@@ -46,10 +46,18 @@ class Course:
     # Either checking local cache or fetching from Course Explorer API 
     #########################
     def __parse_xml_object(self, root):
-        self.description = root.findall('description')[0].text
-        self.label = root.findall('label')[0].text
+        def __try_get(field):
+            try:
+                return root.findall(field)[0].text
+            except IndexError:
+                return ""
+            except:
+                log(f"Exception raised in parsing field {field} of course {self.subjectCode} {self.courseNumber}", mode=LoggingMode.ERROR)
+
+        self.description = __try_get("description")
+        self.label = __try_get("label")
         # Take the first character to int of the credit hours string 
-        self.creditHours = int(root.findall('creditHours')[0].text[:1])
+        self.creditHours = int(__try_get("creditHours")[:1])
 
         # Fetch the section IDs, then fetch and parse section endpoints 
         for s in root.findall('sections/section'):
@@ -67,6 +75,7 @@ class Course:
     
     def __fetch_remote_data(self):
         # Fetch data from course explorer API 
+        log(f"Fetching course info for {self.subjectCode} {self.courseNumber} in {self.semester} {self.year}", mode=LoggingMode.DEBUG)
         remote_endpoint = utils.get_remote_endpoint(self.year, self.semester, self.subjectCode, self.courseNumber)
         courseInfoResponse = requests.get(remote_endpoint) # no extra auth required 
         
@@ -88,6 +97,7 @@ class Course:
 
 @courseQuery.field("courseInfo")
 # TODO: Handle generic vs. specific courseNumber input, use same field both ways 
+# TODO: Add way to handle tracking non-existent courses faster, or query at subject level first and then filter for proper level
 def resolve_course_info(_, info, year, semester, subjectCode, courseNumber):
     log(f"Resolving courseInfo query for {subjectCode} {courseNumber} in {semester} {year}", mode=LoggingMode.INFO)
 

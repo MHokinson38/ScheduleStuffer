@@ -1,7 +1,8 @@
 type Meeting {
-    start: String! # ex: 2019-01-01T08:00:00
-    end: String! # ex: 2019-01-01T08:00:00
-    daysOfWeek: String! # ex: MWF, R is Thursday 
+    isOnline: Boolean! # if true, other fields are ""
+    start: String # ex: 2019-01-01T08:00:00
+    end: String # ex: 2019-01-01T08:00:00
+    daysOfWeek: String # ex: MWF, R is Thursday 
     roomNumber: String 
     buildingName: String
 }
