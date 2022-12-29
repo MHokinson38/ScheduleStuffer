@@ -19,13 +19,15 @@ function SearchForm() {
         e.preventDefault();
         console.log(`Submitting search for course: ${classSearch.semester} ${classSearch.year} ${classSearch.subject} ${classSearch.number}`);
     
+        // What to do with this res handler -> Do I pass down a handler to the SearchForm itself, then 
+        // implement at the App level and pass props down to Calendar? Sounds good for rn 
         submitSearchGQLRequest(classSearch, (res) => {console.log(res)});
     }
 
     // Return form with input fields for semester, year, subject, number (optional), all as text 
     // and a submit button.
-    return <div className="App">
-        <header className="App-header">
+    return <div className="SearchForm">
+        <header className="SearchForm-body">
             <form onSubmit={onSubmitSearch}>
                 <label>
                     Year:
