@@ -20,12 +20,14 @@ courseQuery = QueryType()
 
 # Define the Course Object 
 class Course: 
-    def __init__(self, year, semester, subjectCode, courseNumber):
+    def __init__(self, year: str, semester: str, subjectCode: str, courseNumber: str):
         # Fields needed for making course explorer query (and checking cache) 
         self.year = year
         self.semester = semester
         self.subjectCode = subjectCode # Subject code (ex. CS, MATH)
         self.courseNumber = courseNumber # Course ID (ex. 101, 445)
+
+        self.exists = True # Assume exists, set to false if we fail to find the course endpoint 
 
         self.label = ""
         self.description = ""
@@ -70,7 +72,10 @@ class Course:
         
         if courseInfoResponse.status_code != 200:
             log(f"Error fetching course info from {remote_endpoint}", mode=LoggingMode.ERROR)
-            log(f"Error message: {courseInfoResponse.text}", mode=LoggingMode.ERROR)
+            log(f"Error code: {courseInfoResponse.status_code} Message: {courseInfoResponse.text}", mode=LoggingMode.ERROR)
+
+            if courseInfoResponse.status_code == 404:
+                self.exists = False
             return
 
         # Parse the XML file to build out the rest of the object 
@@ -82,13 +87,23 @@ class Course:
             f.write(courseInfoResponse.text)
 
 @courseQuery.field("courseInfo")
+# TODO: Handle generic vs. specific courseNumber input, use same field both ways 
 def resolve_course_info(_, info, year, semester, subjectCode, courseNumber):
     log(f"Resolving courseInfo query for {subjectCode} {courseNumber} in {semester} {year}", mode=LoggingMode.INFO)
 
     # Cache flush - TODO: Better cache flushing policy 
     utils.check_cache_and_flush()
+
+    # Fetch the courses for all available classes at said level
+    # Filter those which don't exist 
+    courseLevel = int(courseNumber[:1]) * 100 
+    courseNumbers = range(courseLevel, courseLevel + 100)
+
+    courses = []
+    for c in courseNumbers:
+        # Fields from course with matching names to GQL schema are used by default 
+        course = Course(year, semester, subjectCode, str(c))
+        if course.exists:
+            courses.append(course)
     
-    # Fields from course with matching names to GQL schema are used by default 
-    # TODO: Figure out how to use courseQuery file 
-    course = Course(year, semester, subjectCode, courseNumber)
-    return course
+    return courses

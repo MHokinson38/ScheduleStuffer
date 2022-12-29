@@ -28,5 +28,5 @@ type Course {
 
 type Query {
     # Code is the course code, number only 
-    courseInfo(year: String!, semester: String!, subjectCode: String!, courseNumber: String!): Course
+    courseInfo(year: String!, semester: String!, subjectCode: String!, courseNumber: String!): [Course!]
 }
