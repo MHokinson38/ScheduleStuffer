@@ -31,7 +31,7 @@ function SearchForm() {
                     Year:
                     <input 
                         type="text"
-                        value="2023"
+                        defaultValue="2023"
                         onChange={({ target }) =>
                             setClassSearch({ ...classSearch, year: target.value })
                         }>
@@ -52,7 +52,7 @@ function SearchForm() {
                     Subject:{" "}
                     <input
                         type="text"
-                        value="CS"
+                        defaultValue="CS"
                         onChange={({ target }) =>
                             setClassSearch({ ...classSearch, subject: target.value })
                         }
@@ -157,7 +157,6 @@ function submitSearchGQLRequest(input, resHandler) {
     let subjectCode = input.subject;
     let courseNumber = input.number;
 
-    
     fetch('/graphql', {
         method: 'POST',
         headers: {
